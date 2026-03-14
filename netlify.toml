@@ -1,0 +1,31 @@
+# Netlify configuration
+
+[build]
+  command = "vite build"      # build frontend
+  publish = "dist"            # output folder from Vite
+  functions = "api"     # folder with serverless functions
+
+# Redirect /api/* calls to functions
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# Redirect all other paths to index.html (for SPA)
+[[redirects]]
+  from = "/*"
+  to = "/"
+  status = 200
+
+# Set JSON content-type for functions
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Content-Type = "application/json"
+
+# Development settings
+[dev]
+  publish = "dist"             # serve built files
+  functions = "api"      # serverless functions folder
+  port = 8888                  # the port Netlify Dev runs on
+  autoLaunch = true            # open browser automatically
