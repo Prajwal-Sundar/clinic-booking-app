@@ -1,78 +1,48 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DatePicker from "../components/DatePicker";
 import SlotCard from "../components/SlotCard";
 import PatientModal from "../components/PatientModal";
 import type { Slot } from "../../model/Slot";
 import type { Patient } from "../../model/Patient";
 import type { DailyData } from "../../model/DailyData";
-import {
-  patientsDay15,
-  patientsDay16,
-  patientsDay17,
-} from "../data/mockPatients";
-
-const timeSlots = [
-  "12-1 PM",
-  "1-2 PM",
-  "2-3 PM",
-  "4-5 PM",
-  "5-6 PM",
-  "6-7 PM",
-  "7-8 PM",
-];
+import { apiCaller, ApiEndpoint } from "../api";
 
 const Home: React.FC = () => {
   const [date, setDate] = useState<string>(
     new Date().toISOString().split("T")[0],
   );
+  const [dailySlots, setDailySlots] = useState<DailyData>({});
+  const [loading, setLoading] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [isClosing, setIsClosing] = useState(false);
   const [isOpening, setIsOpening] = useState(false);
 
-  const generateSlots = (
-    bookedCount: number,
-    patientList: Patient[],
-  ): Slot[] => {
-    const slots: Slot[] = [];
-    for (let i = 0; i < 6; i++) {
-      if (i < bookedCount)
-        slots.push({ available: false, patient: patientList[i] });
-      else slots.push({ available: true });
-    }
-    return slots;
-  };
+  const fetchSlots = async (isoDate: string) => {
+    setLoading(true);
+    try {
+      const [yyyy, mm, dd] = isoDate.split("-");
+      const formattedDate = `${dd}-${mm}-${yyyy}`;
 
-  const getDailySlots = (isoDate: string): DailyData => {
-    const slots: DailyData = {};
-    timeSlots.forEach((hour) => {
-      if (isoDate === "2026-03-15") {
-        if (hour === "12-1 PM") slots[hour] = generateSlots(3, patientsDay15);
-        else if (hour === "2-3 PM")
-          slots[hour] = generateSlots(1, [patientsDay15[3]]);
-        else if (hour === "5-6 PM")
-          slots[hour] = generateSlots(2, [patientsDay15[0], patientsDay15[2]]);
-        else slots[hour] = generateSlots(0, []);
-      } else if (isoDate === "2026-03-16") {
-        if (hour === "1-2 PM") slots[hour] = generateSlots(1, patientsDay16);
-        else if (hour === "4-5 PM")
-          slots[hour] = generateSlots(1, [patientsDay16[1]]);
-        else slots[hour] = generateSlots(0, []);
-      } else if (isoDate === "2026-03-17") {
-        if (hour === "12-1 PM")
-          slots[hour] = generateSlots(2, [patientsDay17[0], patientsDay17[1]]);
-        else if (hour === "2-3 PM")
-          slots[hour] = generateSlots(1, [patientsDay17[2]]);
-        else if (hour === "6-7 PM")
-          slots[hour] = generateSlots(1, [patientsDay17[1]]);
-        else slots[hour] = generateSlots(0, []);
+      const response = await apiCaller<DailyData>(ApiEndpoint.GET_SLOTS, {
+        date: formattedDate,
+      });
+
+      if (response.success && response.data) {
+        setDailySlots(response.data);
       } else {
-        slots[hour] = generateSlots(0, []);
+        setDailySlots({});
       }
-    });
-    return slots;
+    } catch (err) {
+      console.error("Unexpected error fetching slots:", err);
+      setDailySlots({});
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const dailySlots = getDailySlots(date);
+  useEffect(() => {
+    fetchSlots(date);
+  }, [date]);
 
   const handleCloseModal = () => {
     setIsClosing(true);
@@ -92,11 +62,19 @@ const Home: React.FC = () => {
     <div className="max-w-6xl mx-auto p-4 bg-gray-50 min-h-screen pt-6 pb-32">
       <DatePicker date={date} setDate={setDate} />
 
+      {loading && <div className="text-gray-500 mb-4">Loading slots...</div>}
+
+      {!loading && Object.keys(dailySlots).length === 0 && (
+        <div className="text-center text-gray-600 mt-8 font-semibold">
+          No Slots Available for this day
+        </div>
+      )}
+
       {Object.entries(dailySlots).map(([hour, slots]) => (
         <div key={hour} className="mb-8">
           <h2 className="font-semibold text-xl mb-4 text-gray-700">{hour}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {slots.map((slot, idx) => (
+            {slots.map((slot: Slot, idx: number) => (
               <SlotCard
                 key={idx}
                 slot={slot}
