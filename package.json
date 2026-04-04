@@ -7,9 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "test:mongo": "tsx --env-file=.env ./scripts/testMongo.ts",
-    "seed:slots": "tsx --env-file=.env ./scripts/seedBookings.ts"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
