@@ -7,14 +7,14 @@ import {
   UserIcon,
 } from "@heroicons/react/24/solid";
 
-type ModalProps = {
+type Props = {
   patient: Patient;
   isClosing: boolean;
   isOpening: boolean;
   handleClose: () => void;
 };
 
-const PatientModal: React.FC<ModalProps> = ({
+const PatientViewModal: React.FC<Props> = ({
   patient,
   isClosing,
   isOpening,
@@ -35,16 +35,18 @@ const PatientModal: React.FC<ModalProps> = ({
         <div className="bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 rounded-t-2xl p-4 text-center text-white font-bold text-xl relative">
           Patient Details
           <button
-            className="absolute top-2 right-3 text-white hover:text-gray-200 font-bold text-xl transition-colors"
+            className="absolute top-2 right-3 text-white hover:text-gray-200 font-bold text-xl"
             onClick={handleClose}
           >
             &times;
           </button>
         </div>
+
         <div className="bg-white p-6">
           <h2 className="text-2xl font-bold mb-4 text-indigo-700 text-center">
             {patient.name}
           </h2>
+
           <table className="w-full text-left border-collapse">
             <tbody>
               <tr className="odd:bg-indigo-50 even:bg-white">
@@ -74,9 +76,10 @@ const PatientModal: React.FC<ModalProps> = ({
             </tbody>
           </table>
         </div>
+
         <div className="bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 rounded-b-2xl p-4 text-center">
           <button
-            className="px-4 py-2 bg-white text-red-500 font-bold rounded-lg hover:bg-gray-100 transition-colors"
+            className="px-4 py-2 bg-white text-red-500 font-bold rounded-lg hover:bg-gray-100"
             onClick={handleClose}
           >
             Close
@@ -97,4 +100,4 @@ const PatientModal: React.FC<ModalProps> = ({
   );
 };
 
-export default PatientModal;
+export default PatientViewModal;
