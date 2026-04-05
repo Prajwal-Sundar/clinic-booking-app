@@ -7,10 +7,17 @@ import type { Patient } from "../../model/Patient";
 import type { DailyData } from "../../model/DailyData";
 import { apiCaller, ApiEndpoint } from "../api";
 
+/** YYYY-MM-DD in the user's local timezone (matches `<input type="date" />`). */
+function todayIsoLocal(): string {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
 const Home: React.FC = () => {
-  const [date, setDate] = useState<string>(
-    new Date().toISOString().split("T")[0],
-  );
+  const [date, setDate] = useState<string>(todayIsoLocal);
   const [dailySlots, setDailySlots] = useState<DailyData>({});
   const [loading, setLoading] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
